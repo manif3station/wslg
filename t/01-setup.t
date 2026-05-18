@@ -25,11 +25,12 @@ sub write_file {
 
     my @commands;
     my @files;
+    my @ops;
     my $setup = WSLg::Setup->new(
         os_release_path   => $os_release,
         proc_version_path => $proc_ver,
-        runner            => sub { push @commands, [@_]; return 0; },
-        installer         => sub { push @files, [@_]; return 1; },
+        runner            => sub { push @commands, [@_]; push @ops, 'run:' . join( q{ }, @_ ); return 0; },
+        installer         => sub { push @files, [@_]; push @ops, 'install:' . $_[0]; return 1; },
     );
 
     my $result = $setup->execute_setup;
@@ -43,6 +44,9 @@ sub write_file {
         [ 'sudo', 'snap', 'install', 'snap-store' ],
         'setup includes snap-store install by default'
     );
+    is( $ops[5], 'install:/etc/systemd/system/wslg-fix.service', 'setup writes the service file before the final enable step' );
+    is( $ops[6], 'install:/etc/systemd/user/org.gnome.Shell@wayland.service.d/override.conf', 'setup writes the override before the final enable step' );
+    is( $ops[7], 'run:sudo systemctl enable wslg-fix.service', 'setup enables the service after both files are written' );
     is( scalar @files, 2, 'setup installs the service unit and override file' );
     is( $files[0][0], '/etc/systemd/system/wslg-fix.service', 'service file is installed at the expected path' );
     like( $result->{start_command}, qr/^DESKTOP_SESSION=ubuntu/m, 'setup returns the GNOME start command' );

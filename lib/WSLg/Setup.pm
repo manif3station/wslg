@@ -63,7 +63,9 @@ sub execute_setup {
     );
 
     if ( !$opt->{dry_run} ) {
-        for my $command ( @{ $plan->{commands} } ) {
+        my @commands = @{ $plan->{commands} };
+        my $post_install = pop @commands;
+        for my $command (@commands) {
             $self->_run_command(@{$command});
         }
         $self->_install_text_file(
@@ -76,6 +78,7 @@ sub execute_setup {
             $plan->{override_content},
             '0644',
         );
+        $self->_run_command(@{$post_install});
     }
 
     return {
