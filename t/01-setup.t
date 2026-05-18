@@ -3,7 +3,6 @@ use warnings;
 
 use File::Spec;
 use File::Temp qw(tempdir);
-use JSON::PP qw(decode_json);
 use Test::More;
 
 use lib 'lib';
@@ -220,8 +219,8 @@ sub write_file {
     )->main_setup('--dry-run', '--ubuntu-version', '22.04');
 
     is( $exit, 0, 'main_setup returns zero on success' );
-    my $decoded = decode_json($stdout);
-    is( $decoded->{ubuntu_version}, '22.04', 'main_setup prints JSON output' );
+    like( $stdout, qr/^WSLg setup summary$/m, 'main_setup prints a human-readable setup heading' );
+    like( $stdout, qr/^Ubuntu version: 22\.04$/m, 'main_setup prints the Ubuntu version in readable text' );
 }
 
 {
@@ -286,8 +285,8 @@ sub write_file {
 
     my $exit = $setup->main_setup('--dry-run');
     is( $exit, 0, 'instance main_setup succeeds through the env-based WSL detection path' );
-    my $decoded = decode_json($stdout);
-    is( $decoded->{ubuntu_version}, '22.04', 'instance main_setup still prints JSON output' );
+    like( $stdout, qr/^WSLg setup summary$/m, 'instance main_setup prints the readable setup heading' );
+    like( $stdout, qr/^Dry run: yes$/m, 'instance main_setup prints the dry-run state' );
 }
 
 {
@@ -308,8 +307,8 @@ sub write_file {
     )->main_desktop('--dry-run');
 
     is( $exit, 0, 'main_desktop returns zero on success' );
-    my $decoded = decode_json($stdout);
-    is( $decoded->{mode}, 'desktop', 'main_desktop prints JSON output' );
+    like( $stdout, qr/^WSLg desktop summary$/m, 'main_desktop prints a human-readable desktop heading' );
+    like( $stdout, qr/^Mode: desktop$/m, 'main_desktop prints the desktop mode in readable text' );
 }
 
 {

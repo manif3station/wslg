@@ -5,7 +5,6 @@ use warnings;
 
 use File::Basename qw(dirname);
 use File::Temp qw(tempfile);
-use JSON::PP qw(encode_json);
 
 sub new {
     my ( $class, %args ) = @_;
@@ -34,7 +33,7 @@ sub main_setup {
         print { $self->{stderr_fh} } "$error\n";
         return 2;
     }
-    print { $self->{stdout_fh} } encode_json($result) . "\n";
+    print { $self->{stdout_fh} } $self->_format_setup_summary($result);
     return 0;
 }
 
@@ -47,7 +46,7 @@ sub main_desktop {
         print { $self->{stderr_fh} } "$error\n";
         return 2;
     }
-    print { $self->{stdout_fh} } encode_json($result) . "\n";
+    print { $self->{stdout_fh} } $self->_format_desktop_summary($result);
     return 0;
 }
 
@@ -83,10 +82,10 @@ sub execute_setup {
 
     return {
         mode             => 'setup',
-        applied          => $opt->{dry_run} ? JSON::PP::false : JSON::PP::true,
-        dry_run          => $opt->{dry_run} ? JSON::PP::true : JSON::PP::false,
+        applied          => $opt->{dry_run} ? 0 : 1,
+        dry_run          => $opt->{dry_run} ? 1 : 0,
         ubuntu_version   => $ubuntu_version,
-        skip_snap_store  => $opt->{skip_snap_store} ? JSON::PP::true : JSON::PP::false,
+        skip_snap_store  => $opt->{skip_snap_store} ? 1 : 0,
         service_path     => $plan->{service_path},
         override_path    => $plan->{override_path},
         service_content  => $plan->{service_content},
@@ -112,8 +111,8 @@ sub execute_desktop {
 
     return {
         mode           => 'desktop',
-        applied        => $opt->{dry_run} ? JSON::PP::false : JSON::PP::true,
-        dry_run        => $opt->{dry_run} ? JSON::PP::true : JSON::PP::false,
+        applied        => $opt->{dry_run} ? 0 : 1,
+        dry_run        => $opt->{dry_run} ? 1 : 0,
         ubuntu_version => $ubuntu_version,
         command        => $command,
     };
@@ -264,6 +263,45 @@ XMODIFIERS=@im=ibus \
 MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768 \
 gnome-session
 EOF
+}
+
+sub _format_setup_summary {
+    my ( $self, $result ) = @_;
+    my @lines = (
+        'WSLg setup summary',
+        'Mode: setup',
+        'Ubuntu version: ' . $result->{ubuntu_version},
+        'Applied: ' . ( $result->{applied} ? 'yes' : 'no' ),
+        'Dry run: ' . ( $result->{dry_run} ? 'yes' : 'no' ),
+        'Skip Snap Store: ' . ( $result->{skip_snap_store} ? 'yes' : 'no' ),
+        q{},
+        'Commands:',
+        map { '- ' . $_ } @{ $result->{commands} || [] },
+        q{},
+        'Service file: ' . $result->{service_path},
+        'Override file: ' . $result->{override_path},
+        q{},
+        'Next step:',
+        '- Run ' . $result->{shutdown_command} . ' from Windows',
+        '- Start GNOME with:',
+        $result->{start_command},
+    );
+    return join( "\n", @lines ) . "\n";
+}
+
+sub _format_desktop_summary {
+    my ( $self, $result ) = @_;
+    my @lines = (
+        'WSLg desktop summary',
+        'Mode: desktop',
+        'Ubuntu version: ' . $result->{ubuntu_version},
+        'Applied: ' . ( $result->{applied} ? 'yes' : 'no' ),
+        'Dry run: ' . ( $result->{dry_run} ? 'yes' : 'no' ),
+        q{},
+        'Desktop command:',
+        $result->{command},
+    );
+    return join( "\n", @lines ) . "\n";
 }
 
 sub _run_command {

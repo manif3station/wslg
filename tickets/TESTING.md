@@ -22,6 +22,7 @@ docker compose -f ~/projects/skills/docker-compose.testing.yml run --rm perl-tes
 - Proven behaviors:
   - `dashboard wslg.setup` applies the Ubuntu `24.04` command plan, service file, and GNOME override path
   - `dashboard wslg.desktop` returns and runs the GNOME session command through the shipped environment contract
+  - both commands now print human-readable summaries instead of raw JSON payloads
   - `dashboard wslg.setup --dry-run --skip-snap-store` returns the Ubuntu `20.04` plan without applying system changes
   - the non-dry-run setup path now writes `wslg-fix.service` before `systemctl enable wslg-fix.service`
   - non-Ubuntu distros are rejected
