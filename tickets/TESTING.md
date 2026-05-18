@@ -40,8 +40,9 @@ docker compose -f ~/projects/skills/docker-compose.testing.yml run --rm perl-tes
 - Real host verification passed on `claudev1`:
   - host: Ubuntu `24.04.4` on WSL2 kernel `6.6.114.1-microsoft-standard-WSL2`
   - `dashboard wslg.desktop --dry-run` returned the GNOME session command successfully
-  - `dashboard skills install wslg` updated the host from `0.06` to `0.07`
+  - `dashboard skills install wslg` updated the host from `0.07` to `0.08`
   - `dashboard wslg.desktop` returned with `rc=0` and produced zero stdout and zero stderr on a normal run
+  - `dashboard wslg.desktop --dry-run --size 1024x768` now prints `export ...` lines and `gnome-session --session=ubuntu`
   - `dashboard wslg.desktop --dry-run --size 1024x768` returned the requested dummy mode size successfully
   - `dashboard wslg.setup` completed successfully after the `0.03` enable-order fix
   - the prior live-host failure was reproduced before the fix as `Failed to enable unit: Unit file wslg-fix.service does not exist.`
