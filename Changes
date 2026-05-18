@@ -2,3 +2,5 @@
  - package the initial `wslg` skill
  - add `dashboard wslg.setup` for Ubuntu WSLg GNOME bootstrap
  - add Docker-tested docs, ticket records, and MIT license coverage
+ - add `dashboard wslg.desktop` to start the Ubuntu GNOME desktop session
+ - shorten install examples to `dashboard skills install wslg`

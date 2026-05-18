@@ -32,6 +32,7 @@ This skill:
 This skill adds:
 
 - `dashboard wslg.setup`
+- `dashboard wslg.desktop`
 
 ## Installation
 
@@ -41,10 +42,10 @@ Install from the skill repository:
 dashboard skills install git@github.mf:manif3station/wslg.git
 ```
 
-For local development in this workspace:
+Install by skill name:
 
 ```bash
-dashboard skills install ~/projects/skills/skills/wslg
+dashboard skills install wslg
 ```
 
 ## How To Use It
@@ -79,6 +80,12 @@ After setup completes, shut WSL down from Windows and then start GNOME again ins
 wsl.exe --shutdown
 ```
 
+Then start the desktop session through the skill:
+
+```bash
+dashboard wslg.desktop
+```
+
 ```bash
 DESKTOP_SESSION=ubuntu \
 GDMSESSION=ubuntu \
@@ -103,6 +110,12 @@ Normal case:
 
 ```bash
 dashboard wslg.setup
+```
+
+Start the desktop session after setup:
+
+```bash
+dashboard wslg.desktop
 ```
 
 Edge case when you only want to inspect what Ubuntu `20.04` would do:

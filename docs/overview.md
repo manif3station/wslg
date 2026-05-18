@@ -1,12 +1,13 @@
 # Overview
 
-`wslg` packages the Ubuntu WSLg nested GNOME desktop bootstrap into a single Developer Dashboard skill command.
+`wslg` packages the Ubuntu WSLg nested GNOME desktop bootstrap into Developer Dashboard skill commands.
 
 ## Scope
 
 The current release focuses on one governed entrypoint:
 
 - `dashboard wslg.setup`
+- `dashboard wslg.desktop`
 
 ## Supported Ubuntu Releases
 

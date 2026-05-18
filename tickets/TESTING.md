@@ -15,12 +15,13 @@ docker compose -f ~/projects/skills/docker-compose.testing.yml run --rm perl-tes
 
 ## Latest Result
 
-- Docker functional tests passed: `Files=4, Tests=74`
+- Docker functional tests passed: `Files=4, Tests=89`
 - Docker coverage passed for `lib/WSLg/Setup.pm`:
   - `100.0%` statement coverage
   - `100.0%` subroutine coverage
 - Proven behaviors:
   - `dashboard wslg.setup` applies the Ubuntu `24.04` command plan, service file, and GNOME override path
+  - `dashboard wslg.desktop` returns and runs the GNOME session command through the shipped environment contract
   - `dashboard wslg.setup --dry-run --skip-snap-store` returns the Ubuntu `20.04` plan without applying system changes
   - non-Ubuntu distros are rejected
   - non-WSL hosts are rejected

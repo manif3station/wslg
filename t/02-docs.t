@@ -17,6 +17,7 @@ ok( -f '.env', '.env exists' );
 ok( -f 'Changes', 'Changes file exists' );
 ok( -f 'cpanfile', 'cpanfile exists' );
 ok( -x 'cli/setup', 'setup CLI wrapper is executable' );
+ok( -x 'cli/desktop', 'desktop CLI wrapper is executable' );
 
 my $readme = do {
     open my $fh, '<', 'README.md' or die "Unable to read README.md: $!";
@@ -24,7 +25,8 @@ my $readme = do {
     <$fh>;
 };
 like( $readme, qr/dashboard wslg\.setup/, 'README documents dashboard wslg.setup' );
-like( $readme, qr/dashboard skills install ~\/projects\/skills\/skills\/wslg/, 'README uses ~/ paths for local install documentation' );
+like( $readme, qr/dashboard wslg\.desktop/, 'README documents dashboard wslg.desktop' );
+like( $readme, qr/dashboard skills install wslg/, 'README uses the short install form' );
 like( $readme, qr/Ubuntu `20\.04`, `22\.04`, and `24\.04`/, 'README documents supported Ubuntu versions' );
 like( $readme, qr/--dry-run/, 'README documents the dry-run flow' );
 

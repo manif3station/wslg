@@ -2,11 +2,12 @@
 
 ## SOW-001
 
-Create a `wslg` DD skill that can apply the Ubuntu WSLg nested GNOME desktop bootstrap from a single `dashboard wslg.setup` command, with Docker-tested verification and an explicit MIT license.
+Create a `wslg` DD skill that can apply the Ubuntu WSLg nested GNOME desktop bootstrap through `dashboard wslg.setup` and `dashboard wslg.desktop`, with Docker-tested verification and an explicit MIT license.
 
 ## Scope
 
 - implement `dashboard wslg.setup`
+- implement `dashboard wslg.desktop`
 - support Ubuntu `20.04`, `22.04`, and `24.04`
 - validate WSL and Ubuntu before applying system changes
 - write the WSLg fix service and nested GNOME override files

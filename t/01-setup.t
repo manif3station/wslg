@@ -224,6 +224,49 @@ sub write_file {
     my $tmp = tempdir( CLEANUP => 1 );
     my $os_release = File::Spec->catfile( $tmp, 'os-release' );
     my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
+    write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="24.04"\n} );
+    write_file( $proc_ver,   "Linux version 6.1.0-microsoft-standard-WSL2\n" );
+
+    my @commands;
+    my $setup = WSLg::Setup->new(
+        os_release_path   => $os_release,
+        proc_version_path => $proc_ver,
+        runner            => sub { push @commands, [@_]; return 0; },
+    );
+
+    my $result = $setup->execute_desktop('--dry-run');
+    is( $result->{mode}, 'desktop', 'desktop mode reports its mode' );
+    ok( !$result->{applied}, 'desktop dry run does not execute the command' );
+    is( scalar @commands, 0, 'desktop dry run does not run shell commands' );
+    like( $result->{command}, qr/gnome-session\s*\z/s, 'desktop returns the GNOME session command' );
+}
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my $os_release = File::Spec->catfile( $tmp, 'os-release' );
+    my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
+    write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
+    write_file( $proc_ver,   "Linux version 6.1.0-microsoft-standard-WSL2\n" );
+
+    my @commands;
+    my $setup = WSLg::Setup->new(
+        os_release_path   => $os_release,
+        proc_version_path => $proc_ver,
+        runner            => sub { push @commands, [@_]; return 0; },
+    );
+
+    my $result = $setup->execute_desktop;
+    ok( $result->{applied}, 'desktop execution applies changes by default' );
+    is( scalar @commands, 1, 'desktop execution runs one shell command' );
+    is( $commands[0][0], '/bin/sh', 'desktop uses /bin/sh to start GNOME' );
+    is( $commands[0][1], '-lc', 'desktop uses shell -lc mode' );
+    like( $commands[0][2], qr/XDG_SESSION_TYPE=wayland/, 'desktop command includes the Wayland environment' );
+}
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my $os_release = File::Spec->catfile( $tmp, 'os-release' );
+    my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
     write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
     write_file( $proc_ver,   "plain linux kernel string\n" );
 
@@ -241,6 +284,51 @@ sub write_file {
     is( $exit, 0, 'instance main_setup succeeds through the env-based WSL detection path' );
     my $decoded = decode_json($stdout);
     is( $decoded->{ubuntu_version}, '22.04', 'instance main_setup still prints JSON output' );
+}
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my $os_release = File::Spec->catfile( $tmp, 'os-release' );
+    my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
+    write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
+    write_file( $proc_ver,   "Linux version 6.1.0-microsoft-standard-WSL2\n" );
+
+    my $stdout = q{};
+    open my $out, '>', \$stdout or die $!;
+
+    my $exit = WSLg::Setup->new(
+        os_release_path   => $os_release,
+        proc_version_path => $proc_ver,
+        stdout_fh         => $out,
+        runner            => sub { return 0; },
+    )->main_desktop('--dry-run');
+
+    is( $exit, 0, 'main_desktop returns zero on success' );
+    my $decoded = decode_json($stdout);
+    is( $decoded->{mode}, 'desktop', 'main_desktop prints JSON output' );
+}
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my $os_release = File::Spec->catfile( $tmp, 'os-release' );
+    my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
+    write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
+    write_file( $proc_ver,   "plain linux kernel string\n" );
+
+    my $stdout = q{};
+    my $stderr = q{};
+    open my $out, '>', \$stdout or die $!;
+    open my $err, '>', \$stderr or die $!;
+
+    my $exit = WSLg::Setup->new(
+        os_release_path   => $os_release,
+        proc_version_path => $proc_ver,
+        stdout_fh         => $out,
+        stderr_fh         => $err,
+    )->main_desktop('--dry-run');
+
+    is( $exit, 2, 'main_desktop returns exit code 2 on failure' );
+    like( $stderr, qr/WSLg desktop must run inside WSL/, 'main_desktop writes the desktop error to stderr' );
 }
 
 {

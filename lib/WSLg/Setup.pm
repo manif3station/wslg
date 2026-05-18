@@ -4,8 +4,6 @@ use strict;
 use warnings;
 
 use File::Basename qw(dirname);
-use File::Path qw(make_path);
-use File::Spec;
 use File::Temp qw(tempfile);
 use JSON::PP qw(encode_json);
 
@@ -31,6 +29,19 @@ sub main_setup {
     my ( $class, @argv ) = @_;
     my $self = ref($class) ? $class : $class->new;
     my $result = eval { $self->execute_setup(@argv) };
+    if ( my $error = $@ ) {
+        chomp $error;
+        print { $self->{stderr_fh} } "$error\n";
+        return 2;
+    }
+    print { $self->{stdout_fh} } encode_json($result) . "\n";
+    return 0;
+}
+
+sub main_desktop {
+    my ( $class, @argv ) = @_;
+    my $self = ref($class) ? $class : $class->new;
+    my $result = eval { $self->execute_desktop(@argv) };
     if ( my $error = $@ ) {
         chomp $error;
         print { $self->{stderr_fh} } "$error\n";
@@ -81,6 +92,27 @@ sub execute_setup {
         shutdown_command => 'wsl.exe --shutdown',
         start_command    => $self->_start_command,
         source_note      => 'Ubuntu WSLg GNOME bootstrap based on the referenced WSLg guide',
+    };
+}
+
+sub execute_desktop {
+    my ( $self, @argv ) = @_;
+    my $opt = $self->_parse_args(@argv);
+    die "WSLg desktop must run inside WSL\n" if !$self->_is_wsl;
+
+    my $ubuntu_version = $self->_supported_ubuntu_version( $opt->{ubuntu_version} );
+    my $command = $self->_start_command;
+
+    if ( !$opt->{dry_run} ) {
+        $self->_run_command( '/bin/sh', '-lc', $command );
+    }
+
+    return {
+        mode           => 'desktop',
+        applied        => $opt->{dry_run} ? JSON::PP::false : JSON::PP::true,
+        dry_run        => $opt->{dry_run} ? JSON::PP::true : JSON::PP::false,
+        ubuntu_version => $ubuntu_version,
+        command        => $command,
     };
 }
 

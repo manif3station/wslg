@@ -10,6 +10,12 @@ Run this skill only after WSLg itself already works on the Windows host. Microso
 dashboard wslg.setup
 ```
 
+## Start The Desktop Session
+
+```bash
+dashboard wslg.desktop
+```
+
 ## Dry Run
 
 Review the generated commands and file contents without changing the system:
@@ -40,7 +46,13 @@ Shut WSL down from Windows:
 wsl.exe --shutdown
 ```
 
-Then reopen the distro and start GNOME:
+Then reopen the distro and start GNOME through the skill:
+
+```bash
+dashboard wslg.desktop
+```
+
+The desktop command runs this GNOME startup environment:
 
 ```bash
 DESKTOP_SESSION=ubuntu \
