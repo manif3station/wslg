@@ -12,6 +12,8 @@ ok( -f 'docs/changes/2026-05-18-initial-release.md', 'initial change record exis
 ok( -f 'docs/changes/2026-05-18-desktop-launcher-release.md', 'desktop launcher change record exists' );
 ok( -f 'docs/changes/2026-05-18-service-enable-order-fix.md', 'service-enable order fix record exists' );
 ok( -f 'docs/changes/2026-05-18-human-readable-summary.md', 'human-readable summary change record exists' );
+ok( -f 'docs/changes/2026-05-18-desktop-shellless-launch.md', 'desktop shellless launch change record exists' );
+ok( -f 'docs/changes/2026-05-18-desktop-size-option.md', 'desktop size option change record exists' );
 ok( -f 'tickets/SOW.md', 'SOW ticket exists' );
 ok( -f 'tickets/EPIC-205.md', 'epic ticket exists' );
 ok( -f 'tickets/DD-240.md', 'ticket record exists' );
@@ -29,6 +31,7 @@ my $readme = do {
 };
 like( $readme, qr/dashboard wslg\.setup/, 'README documents dashboard wslg.setup' );
 like( $readme, qr/dashboard wslg\.desktop/, 'README documents dashboard wslg.desktop' );
+like( $readme, qr/dashboard wslg\.desktop --size 1024x768/, 'README documents the desktop size option' );
 like( $readme, qr/dashboard skills install wslg/, 'README uses the short install form' );
 like( $readme, qr/Ubuntu `20\.04`, `22\.04`, and `24\.04`/, 'README documents supported Ubuntu versions' );
 like( $readme, qr/--dry-run/, 'README documents the dry-run flow' );
@@ -38,6 +41,6 @@ my $env = do {
     local $/;
     <$fh>;
 };
-like( $env, qr/^VERSION=0\.04$/m, '.env stores the skill version' );
+like( $env, qr/^VERSION=0\.06$/m, '.env stores the skill version' );
 
 done_testing;

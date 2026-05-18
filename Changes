@@ -1,3 +1,11 @@
+0.05 2026-05-18
+ - run `dashboard wslg.desktop` through a direct `env ... gnome-session` argv path instead of `/bin/sh -lc`
+ - avoid shell parsing errors from the multiline environment block on real hosts
+
+0.06 2026-05-18
+ - add `dashboard wslg.desktop --size WIDTHxHEIGHT`
+ - wire the requested size into `MUTTER_DEBUG_DUMMY_MODE_SPECS`
+
 0.04 2026-05-18
  - change `dashboard wslg.setup` and `dashboard wslg.desktop` summaries from JSON to readable text
  - keep the same internal result structure while rendering a CLI-friendly summary

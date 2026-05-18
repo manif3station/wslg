@@ -15,13 +15,14 @@ docker compose -f ~/projects/skills/docker-compose.testing.yml run --rm perl-tes
 
 ## Latest Result
 
-- Docker functional tests passed: `Files=4, Tests=89`
+- Docker functional tests passed: `Files=4, Tests=109`
 - Docker coverage passed for `lib/WSLg/Setup.pm`:
   - `100.0%` statement coverage
   - `100.0%` subroutine coverage
 - Proven behaviors:
   - `dashboard wslg.setup` applies the Ubuntu `24.04` command plan, service file, and GNOME override path
   - `dashboard wslg.desktop` returns and runs the GNOME session command through the shipped environment contract
+  - `dashboard wslg.desktop --size 1024x768` uses the requested dummy mode size
   - both commands now print human-readable summaries instead of raw JSON payloads
   - `dashboard wslg.setup --dry-run --skip-snap-store` returns the Ubuntu `20.04` plan without applying system changes
   - the non-dry-run setup path now writes `wslg-fix.service` before `systemctl enable wslg-fix.service`
@@ -38,3 +39,4 @@ docker compose -f ~/projects/skills/docker-compose.testing.yml run --rm perl-tes
   - `dashboard wslg.desktop --dry-run` returned the GNOME session command successfully
   - `dashboard wslg.setup` completed successfully after the `0.03` enable-order fix
   - the prior live-host failure was reproduced before the fix as `Failed to enable unit: Unit file wslg-fix.service does not exist.`
+  - the desktop launcher no longer depends on `/bin/sh -lc`, so the host-side shell syntax error path is removed

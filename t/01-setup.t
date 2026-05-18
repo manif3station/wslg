@@ -242,6 +242,7 @@ sub write_file {
     ok( !$result->{applied}, 'desktop dry run does not execute the command' );
     is( scalar @commands, 0, 'desktop dry run does not run shell commands' );
     like( $result->{command}, qr/gnome-session\s*\z/s, 'desktop returns the GNOME session command' );
+    is( $result->{size}, '1366x768', 'desktop uses the default size when none is provided' );
 }
 
 {
@@ -260,10 +261,32 @@ sub write_file {
 
     my $result = $setup->execute_desktop;
     ok( $result->{applied}, 'desktop execution applies changes by default' );
-    is( scalar @commands, 1, 'desktop execution runs one shell command' );
-    is( $commands[0][0], '/bin/sh', 'desktop uses /bin/sh to start GNOME' );
-    is( $commands[0][1], '-lc', 'desktop uses shell -lc mode' );
-    like( $commands[0][2], qr/XDG_SESSION_TYPE=wayland/, 'desktop command includes the Wayland environment' );
+    is( scalar @commands, 1, 'desktop execution runs one command' );
+    is( $commands[0][0], 'env', 'desktop uses env to start GNOME without shell parsing' );
+    like( $commands[0][-1], qr/^gnome-session$/, 'desktop command still launches gnome-session' );
+    ok( scalar grep { $_ eq 'XDG_SESSION_TYPE=wayland' } @{ $commands[0] }, 'desktop command includes the Wayland environment' );
+    ok( scalar grep { $_ eq 'XDG_DATA_DIRS=/usr/share/ubuntu' } @{ $commands[0] }, 'desktop command sets XDG_DATA_DIRS directly when the inherited value is empty' );
+}
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my $os_release = File::Spec->catfile( $tmp, 'os-release' );
+    my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
+    write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
+    write_file( $proc_ver,   "Linux version 6.1.0-microsoft-standard-WSL2\n" );
+
+    my @commands;
+    my $setup = WSLg::Setup->new(
+        os_release_path   => $os_release,
+        proc_version_path => $proc_ver,
+        env               => { XDG_DATA_DIRS => '/usr/local/share:/usr/share' },
+        runner            => sub { push @commands, [@_]; return 0; },
+    );
+
+    my $result = $setup->execute_desktop('--size', '1024x768');
+    is( $result->{size}, '1024x768', 'desktop keeps the requested size' );
+    ok( scalar grep { $_ eq 'MUTTER_DEBUG_DUMMY_MODE_SPECS=1024x768' } @{ $commands[0] }, 'desktop command uses the requested size' );
+    ok( scalar grep { $_ eq 'XDG_DATA_DIRS=/usr/share/ubuntu:/usr/local/share:/usr/share' } @{ $commands[0] }, 'desktop command preserves inherited XDG_DATA_DIRS after the Ubuntu prefix' );
 }
 
 {
@@ -309,6 +332,7 @@ sub write_file {
     is( $exit, 0, 'main_desktop returns zero on success' );
     like( $stdout, qr/^WSLg desktop summary$/m, 'main_desktop prints a human-readable desktop heading' );
     like( $stdout, qr/^Mode: desktop$/m, 'main_desktop prints the desktop mode in readable text' );
+    like( $stdout, qr/^Desktop command:$/m, 'main_desktop prints the desktop command heading' );
 }
 
 {
@@ -332,6 +356,23 @@ sub write_file {
 
     is( $exit, 2, 'main_desktop returns exit code 2 on failure' );
     like( $stderr, qr/WSLg desktop must run inside WSL/, 'main_desktop writes the desktop error to stderr' );
+}
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my $os_release = File::Spec->catfile( $tmp, 'os-release' );
+    my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
+    write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
+    write_file( $proc_ver,   "Linux version 6.1.0-microsoft-standard-WSL2\n" );
+
+    my $setup = WSLg::Setup->new(
+        os_release_path   => $os_release,
+        proc_version_path => $proc_ver,
+    );
+
+    my $ok = eval { $setup->execute_desktop('--size', 'bad-size'); 1 };
+    ok( !$ok, 'desktop rejects invalid size values' );
+    like( $@, qr/^Invalid size: bad-size/, 'desktop reports the invalid size clearly' );
 }
 
 {

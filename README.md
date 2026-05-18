@@ -86,6 +86,12 @@ Then start the desktop session through the skill:
 dashboard wslg.desktop
 ```
 
+Start the desktop session with a specific window size:
+
+```bash
+dashboard wslg.desktop --size 1024x768
+```
+
 ```bash
 DESKTOP_SESSION=ubuntu \
 GDMSESSION=ubuntu \
@@ -116,6 +122,12 @@ Start the desktop session after setup:
 
 ```bash
 dashboard wslg.desktop
+```
+
+Start the desktop session at `1024x768`:
+
+```bash
+dashboard wslg.desktop --size 1024x768
 ```
 
 Edge case when you only want to inspect what Ubuntu `20.04` would do:

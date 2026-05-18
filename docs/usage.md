@@ -16,6 +16,12 @@ dashboard wslg.setup
 dashboard wslg.desktop
 ```
 
+## Start The Desktop Session At A Specific Size
+
+```bash
+dashboard wslg.desktop --size 1024x768
+```
+
 ## Dry Run
 
 Review the generated commands and file contents without changing the system:

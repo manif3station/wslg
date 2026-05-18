@@ -103,10 +103,11 @@ sub execute_desktop {
     die "WSLg desktop must run inside WSL\n" if !$self->_is_wsl;
 
     my $ubuntu_version = $self->_supported_ubuntu_version( $opt->{ubuntu_version} );
-    my $command = $self->_start_command;
+    my $size = $self->_validate_size( $opt->{size} );
+    my $command = $self->_start_command($size);
 
     if ( !$opt->{dry_run} ) {
-        $self->_run_command( '/bin/sh', '-lc', $command );
+        $self->_run_command( $self->_desktop_command_argv($size) );
     }
 
     return {
@@ -114,6 +115,7 @@ sub execute_desktop {
         applied        => $opt->{dry_run} ? 0 : 1,
         dry_run        => $opt->{dry_run} ? 1 : 0,
         ubuntu_version => $ubuntu_version,
+        size           => $size,
         command        => $command,
     };
 }
@@ -138,6 +140,11 @@ sub _parse_args {
         if ( $arg eq '--ubuntu-version' ) {
             die "--ubuntu-version requires a value\n" if !@argv;
             $opt{ubuntu_version} = shift @argv;
+            next;
+        }
+        if ( $arg eq '--size' ) {
+            die "--size requires a value\n" if !@argv;
+            $opt{size} = shift @argv;
             next;
         }
         die "Unsupported option: $arg\n";
@@ -246,7 +253,9 @@ sub _override_path {
 }
 
 sub _start_command {
-    return <<'EOF';
+    my ( $self, $size ) = @_;
+    $size ||= '1366x768';
+    return <<"EOF";
 DESKTOP_SESSION=ubuntu \
 GDMSESSION=ubuntu \
 GNOME_SHELL_SESSION_MODE=ubuntu \
@@ -257,12 +266,46 @@ IM_CONFIG_PHASE=1 \
 QT_ACCESSIBILITY=1 \
 QT_IM_MODULE=ibus \
 XDG_CURRENT_DESKTOP=ubuntu:GNOME \
-XDG_DATA_DIRS=/usr/share/ubuntu:$XDG_DATA_DIRS \
+XDG_DATA_DIRS=/usr/share/ubuntu:\$XDG_DATA_DIRS \
 XDG_SESSION_TYPE=wayland \
-XMODIFIERS=@im=ibus \
-MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768 \
+XMODIFIERS=\@im=ibus \
+MUTTER_DEBUG_DUMMY_MODE_SPECS=$size \
 gnome-session
 EOF
+}
+
+sub _desktop_command_argv {
+    my ( $self, $size ) = @_;
+    $size ||= '1366x768';
+    my $xdg_data_dirs = defined $self->{env}->{XDG_DATA_DIRS} && $self->{env}->{XDG_DATA_DIRS} ne q{}
+      ? '/usr/share/ubuntu:' . $self->{env}->{XDG_DATA_DIRS}
+      : '/usr/share/ubuntu';
+
+    return (
+        'env',
+        'DESKTOP_SESSION=ubuntu',
+        'GDMSESSION=ubuntu',
+        'GNOME_SHELL_SESSION_MODE=ubuntu',
+        'GTK_IM_MODULE=ibus',
+        'GTK_MODULES=gail:atk-bridge',
+        'IM_CONFIG_CHECK_ENV=1',
+        'IM_CONFIG_PHASE=1',
+        'QT_ACCESSIBILITY=1',
+        'QT_IM_MODULE=ibus',
+        'XDG_CURRENT_DESKTOP=ubuntu:GNOME',
+        "XDG_DATA_DIRS=$xdg_data_dirs",
+        'XDG_SESSION_TYPE=wayland',
+        'XMODIFIERS=@im=ibus',
+        "MUTTER_DEBUG_DUMMY_MODE_SPECS=$size",
+        'gnome-session',
+    );
+}
+
+sub _validate_size {
+    my ( $self, $size ) = @_;
+    return '1366x768' if !defined $size || $size eq q{};
+    return $size if $size =~ /\A\d+x\d+\z/;
+    die "Invalid size: $size\n";
 }
 
 sub _format_setup_summary {
