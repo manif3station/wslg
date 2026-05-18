@@ -86,10 +86,18 @@ Then start the desktop session through the skill:
 dashboard wslg.desktop
 ```
 
+That command is meant to launch the desktop directly. It does not print a summary first on a normal run.
+
 Start the desktop session with a specific window size:
 
 ```bash
 dashboard wslg.desktop --size 1024x768
+```
+
+Preview the exact desktop command without launching GNOME:
+
+```bash
+dashboard wslg.desktop --dry-run
 ```
 
 ```bash

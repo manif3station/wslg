@@ -340,6 +340,29 @@ sub write_file {
     my $os_release = File::Spec->catfile( $tmp, 'os-release' );
     my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
     write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
+    write_file( $proc_ver,   "Linux version 6.1.0-microsoft-standard-WSL2\n" );
+
+    my $stdout = q{};
+    my @commands;
+    open my $out, '>', \$stdout or die $!;
+
+    my $exit = WSLg::Setup->new(
+        os_release_path   => $os_release,
+        proc_version_path => $proc_ver,
+        stdout_fh         => $out,
+        runner            => sub { push @commands, [@_]; return 0; },
+    )->main_desktop;
+
+    is( $exit, 0, 'main_desktop returns zero on a normal desktop launch' );
+    is( $stdout, q{}, 'main_desktop stays quiet during a normal desktop launch' );
+    is( scalar @commands, 1, 'main_desktop still launches the desktop command on a normal run' );
+}
+
+{
+    my $tmp = tempdir( CLEANUP => 1 );
+    my $os_release = File::Spec->catfile( $tmp, 'os-release' );
+    my $proc_ver   = File::Spec->catfile( $tmp, 'proc-version' );
+    write_file( $os_release, qq{ID=ubuntu\nVERSION_ID="22.04"\n} );
     write_file( $proc_ver,   "plain linux kernel string\n" );
 
     my $stdout = q{};

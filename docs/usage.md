@@ -16,10 +16,18 @@ dashboard wslg.setup
 dashboard wslg.desktop
 ```
 
+`dashboard wslg.desktop` launches GNOME directly and does not print the summary first.
+
 ## Start The Desktop Session At A Specific Size
 
 ```bash
 dashboard wslg.desktop --size 1024x768
+```
+
+## Preview The Desktop Command
+
+```bash
+dashboard wslg.desktop --dry-run
 ```
 
 ## Dry Run

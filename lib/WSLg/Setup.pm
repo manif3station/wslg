@@ -46,7 +46,9 @@ sub main_desktop {
         print { $self->{stderr_fh} } "$error\n";
         return 2;
     }
-    print { $self->{stdout_fh} } $self->_format_desktop_summary($result);
+    if ( $result->{dry_run} ) {
+        print { $self->{stdout_fh} } $self->_format_desktop_summary($result);
+    }
     return 0;
 }
 
