@@ -46,6 +46,9 @@ docker compose -f ~/projects/skills/docker-compose.testing.yml run --rm perl-tes
   - `dashboard wslg.desktop` returned with `rc=0` and produced zero stdout and zero stderr on a normal run
   - `dashboard wslg.desktop --dry-run --size 1024x768` now prints `export ...` lines and `gnome-session --session=ubuntu`
   - `dashboard wslg.desktop --dry-run --size 1024x768` returned the requested dummy mode size successfully
+  - `dashboard skills install wslg` updated the host from `0.08` to `0.09`
+  - `dashboard wslg.setup` now leaves `/tmp/.X11-unix` at mode `1777` after `systemctl daemon-reload` and `systemctl restart wslg-fix.service`
+  - `dashboard wslg.desktop` stayed alive under a `timeout 12s` probe with `rc=124`, which confirms it no longer exits immediately on launch
   - `dashboard wslg.setup` completed successfully after the `0.03` enable-order fix
   - the prior live-host failure was reproduced before the fix as `Failed to enable unit: Unit file wslg-fix.service does not exist.`
   - the desktop launcher no longer depends on `/bin/sh -lc`, so the host-side shell syntax error path is removed
