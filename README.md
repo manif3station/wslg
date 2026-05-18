@@ -100,6 +100,8 @@ Preview the exact desktop command without launching GNOME:
 dashboard wslg.desktop --dry-run
 ```
 
+The dry-run output is now shown as `export ...` lines followed by `gnome-session --session=ubuntu`, so it can be pasted back into the shell safely.
+
 ```bash
 DESKTOP_SESSION=ubuntu \
 GDMSESSION=ubuntu \
@@ -115,7 +117,7 @@ XDG_DATA_DIRS=/usr/share/ubuntu:$XDG_DATA_DIRS \
 XDG_SESSION_TYPE=wayland \
 XMODIFIERS=@im=ibus \
 MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768 \
-gnome-session
+gnome-session --session=ubuntu
 ```
 
 ## Practical Examples

@@ -30,6 +30,8 @@ dashboard wslg.desktop --size 1024x768
 dashboard wslg.desktop --dry-run
 ```
 
+The dry-run output uses `export` lines so the preview can be pasted back into the shell safely.
+
 ## Dry Run
 
 Review the generated commands and file contents without changing the system:

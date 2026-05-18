@@ -48,7 +48,7 @@ sub write_file {
     is( $ops[7], 'run:sudo systemctl enable wslg-fix.service', 'setup enables the service after both files are written' );
     is( scalar @files, 2, 'setup installs the service unit and override file' );
     is( $files[0][0], '/etc/systemd/system/wslg-fix.service', 'service file is installed at the expected path' );
-    like( $result->{start_command}, qr/^DESKTOP_SESSION=ubuntu/m, 'setup returns the GNOME start command' );
+    like( $result->{start_command}, qr/^export DESKTOP_SESSION=ubuntu$/m, 'setup returns the GNOME start command' );
 }
 
 {
@@ -241,7 +241,8 @@ sub write_file {
     is( $result->{mode}, 'desktop', 'desktop mode reports its mode' );
     ok( !$result->{applied}, 'desktop dry run does not execute the command' );
     is( scalar @commands, 0, 'desktop dry run does not run shell commands' );
-    like( $result->{command}, qr/gnome-session\s*\z/s, 'desktop returns the GNOME session command' );
+    like( $result->{command}, qr/^export DESKTOP_SESSION=ubuntu$/m, 'desktop returns an export-based command preview' );
+    like( $result->{command}, qr/gnome-session --session=ubuntu\s*\z/s, 'desktop returns the explicit Ubuntu GNOME session command' );
     is( $result->{size}, '1366x768', 'desktop uses the default size when none is provided' );
 }
 
@@ -263,8 +264,10 @@ sub write_file {
     ok( $result->{applied}, 'desktop execution applies changes by default' );
     is( scalar @commands, 1, 'desktop execution runs one command' );
     is( $commands[0][0], 'env', 'desktop uses env to start GNOME without shell parsing' );
-    like( $commands[0][-1], qr/^gnome-session$/, 'desktop command still launches gnome-session' );
+    is( $commands[0][-2], 'gnome-session', 'desktop command still launches gnome-session' );
+    is( $commands[0][-1], '--session=ubuntu', 'desktop command requests the Ubuntu session explicitly' );
     ok( scalar grep { $_ eq 'XDG_SESSION_TYPE=wayland' } @{ $commands[0] }, 'desktop command includes the Wayland environment' );
+    ok( scalar grep { $_ eq 'XDG_SESSION_DESKTOP=ubuntu' } @{ $commands[0] }, 'desktop command exports the Ubuntu session desktop name' );
     ok( scalar grep { $_ eq 'XDG_DATA_DIRS=/usr/share/ubuntu' } @{ $commands[0] }, 'desktop command sets XDG_DATA_DIRS directly when the inherited value is empty' );
 }
 

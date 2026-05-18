@@ -1,3 +1,7 @@
+0.08 2026-05-18
+ - change the desktop dry-run preview to copy-paste-safe `export ...` lines
+ - launch the desktop with `XDG_SESSION_DESKTOP=ubuntu` and `gnome-session --session=ubuntu`
+
 0.07 2026-05-18
  - make `dashboard wslg.desktop` launch GNOME without printing the desktop summary first
  - keep the human-readable desktop summary for `dashboard wslg.desktop --dry-run`
