@@ -9,6 +9,7 @@ ok( -f 'docs/overview.md', 'overview doc exists' );
 ok( -f 'docs/usage.md', 'usage doc exists' );
 ok( -d 'docs/changes', 'changes docs directory exists' );
 ok( -f 'docs/changes/2026-05-18-initial-release.md', 'initial change record exists' );
+ok( -f 'docs/changes/2026-05-18-desktop-launcher-release.md', 'desktop launcher change record exists' );
 ok( -f 'tickets/SOW.md', 'SOW ticket exists' );
 ok( -f 'tickets/EPIC-205.md', 'epic ticket exists' );
 ok( -f 'tickets/DD-240.md', 'ticket record exists' );
@@ -35,6 +36,6 @@ my $env = do {
     local $/;
     <$fh>;
 };
-like( $env, qr/^VERSION=0\.01$/m, '.env stores the skill version' );
+like( $env, qr/^VERSION=0\.02$/m, '.env stores the skill version' );
 
 done_testing;
