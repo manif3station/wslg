@@ -32,3 +32,8 @@ docker compose -f ~/projects/skills/docker-compose.testing.yml run --rm perl-tes
   - the default temp-file installer path removes its temporary file after use
 - Coverage artifact cleanup passed:
   - `cover_db` was removed after verification with a disposable Docker cleanup container
+- Real host verification passed on `claudev1`:
+  - host: Ubuntu `24.04.4` on WSL2 kernel `6.6.114.1-microsoft-standard-WSL2`
+  - `dashboard wslg.desktop --dry-run` returned the GNOME session command successfully
+  - `dashboard wslg.setup` completed successfully after the `0.03` enable-order fix
+  - the prior live-host failure was reproduced before the fix as `Failed to enable unit: Unit file wslg-fix.service does not exist.`
