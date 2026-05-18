@@ -1,0 +1,38 @@
+use strict;
+use warnings;
+
+use Test::More;
+
+ok( -f 'README.md', 'README exists' );
+ok( -d 'docs', 'docs directory exists' );
+ok( -f 'docs/overview.md', 'overview doc exists' );
+ok( -f 'docs/usage.md', 'usage doc exists' );
+ok( -d 'docs/changes', 'changes docs directory exists' );
+ok( -f 'docs/changes/2026-05-18-initial-release.md', 'initial change record exists' );
+ok( -f 'tickets/SOW.md', 'SOW ticket exists' );
+ok( -f 'tickets/EPIC-205.md', 'epic ticket exists' );
+ok( -f 'tickets/DD-240.md', 'ticket record exists' );
+ok( -f 'tickets/TESTING.md', 'testing record exists' );
+ok( -f '.env', '.env exists' );
+ok( -f 'Changes', 'Changes file exists' );
+ok( -f 'cpanfile', 'cpanfile exists' );
+ok( -x 'cli/setup', 'setup CLI wrapper is executable' );
+
+my $readme = do {
+    open my $fh, '<', 'README.md' or die "Unable to read README.md: $!";
+    local $/;
+    <$fh>;
+};
+like( $readme, qr/dashboard wslg\.setup/, 'README documents dashboard wslg.setup' );
+like( $readme, qr/dashboard skills install ~\/projects\/skills\/skills\/wslg/, 'README uses ~/ paths for local install documentation' );
+like( $readme, qr/Ubuntu `20\.04`, `22\.04`, and `24\.04`/, 'README documents supported Ubuntu versions' );
+like( $readme, qr/--dry-run/, 'README documents the dry-run flow' );
+
+my $env = do {
+    open my $fh, '<', '.env' or die "Unable to read .env: $!";
+    local $/;
+    <$fh>;
+};
+like( $env, qr/^VERSION=0\.01$/m, '.env stores the skill version' );
+
+done_testing;

@@ -1,0 +1,4 @@
+0.01 2026-05-18
+ - package the initial `wslg` skill
+ - add `dashboard wslg.setup` for Ubuntu WSLg GNOME bootstrap
+ - add Docker-tested docs, ticket records, and MIT license coverage
