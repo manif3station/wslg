@@ -37,15 +37,17 @@ sub write_file {
     is( $result->{ubuntu_version}, '24.04', 'setup detects Ubuntu version from os-release' );
     like( $result->{service_content}, qr/runtime-dir\/wayland-0\.lock/, '24.04 service includes runtime-dir permissions fix' );
     is( $result->{override_path}, '/etc/systemd/user/org.gnome.Shell@wayland.service.d/override.conf', '24.04 uses the org.gnome.Shell override path' );
-    is( scalar @commands, 6, 'setup runs the expected command count when snap-store is enabled' );
+    is( scalar @commands, 8, 'setup runs the expected command count when snap-store is enabled' );
     is_deeply(
         $commands[2],
         [ 'sudo', 'snap', 'install', 'snap-store' ],
         'setup includes snap-store install by default'
     );
-    is( $ops[5], 'install:/etc/systemd/system/wslg-fix.service', 'setup writes the service file before the final enable step' );
-    is( $ops[6], 'install:/etc/systemd/user/org.gnome.Shell@wayland.service.d/override.conf', 'setup writes the override before the final enable step' );
-    is( $ops[7], 'run:sudo systemctl enable wslg-fix.service', 'setup enables the service after both files are written' );
+    is( $ops[5], 'install:/etc/systemd/system/wslg-fix.service', 'setup writes the service file before the systemd reload step' );
+    is( $ops[6], 'install:/etc/systemd/user/org.gnome.Shell@wayland.service.d/override.conf', 'setup writes the override before the systemd reload step' );
+    is( $ops[7], 'run:sudo systemctl daemon-reload', 'setup reloads systemd after writing the service files' );
+    is( $ops[8], 'run:sudo systemctl enable wslg-fix.service', 'setup enables the service after the systemd reload' );
+    is( $ops[9], 'run:sudo systemctl restart wslg-fix.service', 'setup restarts the service so the X11 fix applies immediately' );
     is( scalar @files, 2, 'setup installs the service unit and override file' );
     is( $files[0][0], '/etc/systemd/system/wslg-fix.service', 'service file is installed at the expected path' );
     like( $result->{start_command}, qr/^export DESKTOP_SESSION=ubuntu$/m, 'setup returns the GNOME start command' );
@@ -74,6 +76,9 @@ sub write_file {
     is( scalar @commands, 0, 'dry run does not execute shell commands' );
     is( scalar @files, 0, 'dry run does not install files' );
     like( $result->{commands}[2], qr/acpi-support-/, '20.04 plan keeps the acpi-support exclusion' );
+    is( $result->{commands}[4], 'sudo systemctl daemon-reload', 'dry-run plan includes daemon-reload' );
+    is( $result->{commands}[5], 'sudo systemctl enable wslg-fix.service', 'dry-run plan includes enable' );
+    is( $result->{commands}[6], 'sudo systemctl restart wslg-fix.service', 'dry-run plan includes restart' );
     is( $result->{override_path}, '/etc/systemd/user/gnome-shell-wayland.service.d/override.conf', '20.04 uses the older override path' );
 }
 
@@ -268,7 +273,7 @@ sub write_file {
     is( $commands[0][-1], '--session=ubuntu', 'desktop command requests the Ubuntu session explicitly' );
     ok( scalar grep { $_ eq 'XDG_SESSION_TYPE=wayland' } @{ $commands[0] }, 'desktop command includes the Wayland environment' );
     ok( scalar grep { $_ eq 'XDG_SESSION_DESKTOP=ubuntu' } @{ $commands[0] }, 'desktop command exports the Ubuntu session desktop name' );
-    ok( scalar grep { $_ eq 'XDG_DATA_DIRS=/usr/share/ubuntu' } @{ $commands[0] }, 'desktop command sets XDG_DATA_DIRS directly when the inherited value is empty' );
+    ok( scalar grep { $_ eq 'XDG_DATA_DIRS=/usr/share/ubuntu:/usr/local/share:/usr/share:/var/lib/snapd/desktop' } @{ $commands[0] }, 'desktop command sets a sane fallback XDG_DATA_DIRS when the inherited value is empty' );
 }
 
 {

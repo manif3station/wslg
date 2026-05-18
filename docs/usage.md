@@ -32,6 +32,8 @@ dashboard wslg.desktop --dry-run
 
 The dry-run output uses `export` lines so the preview can be pasted back into the shell safely.
 
+The desktop launcher also supplies a fallback `XDG_DATA_DIRS` when the inherited value is empty, which avoids missing icon and pixbuf lookups in stripped-down shells.
+
 ## Dry Run
 
 Review the generated commands and file contents without changing the system:

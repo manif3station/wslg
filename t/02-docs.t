@@ -16,6 +16,7 @@ ok( -f 'docs/changes/2026-05-18-desktop-shellless-launch.md', 'desktop shellless
 ok( -f 'docs/changes/2026-05-18-desktop-size-option.md', 'desktop size option change record exists' );
 ok( -f 'docs/changes/2026-05-18-desktop-direct-launch.md', 'desktop direct launch change record exists' );
 ok( -f 'docs/changes/2026-05-18-desktop-export-preview.md', 'desktop export preview change record exists' );
+ok( -f 'docs/changes/2026-05-18-wslg-fix-restart-and-xdg-fallback.md', 'wslg fix restart and XDG fallback change record exists' );
 ok( -f 'tickets/SOW.md', 'SOW ticket exists' );
 ok( -f 'tickets/EPIC-205.md', 'epic ticket exists' );
 ok( -f 'tickets/DD-240.md', 'ticket record exists' );
@@ -45,6 +46,6 @@ my $env = do {
     local $/;
     <$fh>;
 };
-like( $env, qr/^VERSION=0\.08$/m, '.env stores the skill version' );
+like( $env, qr/^VERSION=0\.09$/m, '.env stores the skill version' );
 
 done_testing;

@@ -23,7 +23,7 @@ This skill:
 - masks `gdm.service`
 - writes `/etc/systemd/system/wslg-fix.service` with the correct release-specific contents
 - writes the correct nested GNOME override file for the detected Ubuntu release
-- enables the `wslg-fix.service` unit
+- reloads systemd, enables the `wslg-fix.service` unit, and restarts it so the X11 fix applies immediately
 - prints the required final `wsl.exe --shutdown` and `gnome-session` follow-up steps
 - supports `--dry-run` so the full generated plan can be reviewed without changing the system
 

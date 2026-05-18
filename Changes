@@ -1,3 +1,7 @@
+0.09 2026-05-18
+ - make `wslg.setup` run `systemctl daemon-reload` and restart `wslg-fix.service` immediately after writing the unit
+ - give `wslg.desktop` a sane fallback `XDG_DATA_DIRS` when the inherited environment is empty
+
 0.08 2026-05-18
  - change the desktop dry-run preview to copy-paste-safe `export ...` lines
  - launch the desktop with `XDG_SESSION_DESKTOP=ubuntu` and `gnome-session --session=ubuntu`

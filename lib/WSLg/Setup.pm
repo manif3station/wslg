@@ -65,7 +65,6 @@ sub execute_setup {
 
     if ( !$opt->{dry_run} ) {
         my @commands = @{ $plan->{commands} };
-        my $post_install = pop @commands;
         for my $command (@commands) {
             $self->_run_command(@{$command});
         }
@@ -79,7 +78,9 @@ sub execute_setup {
             $plan->{override_content},
             '0644',
         );
-        $self->_run_command(@{$post_install});
+        $self->_run_command( 'sudo', 'systemctl', 'daemon-reload' );
+        $self->_run_command( 'sudo', 'systemctl', 'enable', 'wslg-fix.service' );
+        $self->_run_command( 'sudo', 'systemctl', 'restart', 'wslg-fix.service' );
     }
 
     return {
@@ -92,7 +93,12 @@ sub execute_setup {
         override_path    => $plan->{override_path},
         service_content  => $plan->{service_content},
         override_content => $plan->{override_content},
-        commands         => [ map { join q{ }, @{$_} } @{ $plan->{commands} } ],
+        commands         => [
+            ( map { join q{ }, @{$_} } @{ $plan->{commands} } ),
+            'sudo systemctl daemon-reload',
+            'sudo systemctl enable wslg-fix.service',
+            'sudo systemctl restart wslg-fix.service',
+        ],
         shutdown_command => 'wsl.exe --shutdown',
         start_command    => $self->_start_command,
         source_note      => 'Ubuntu WSLg GNOME bootstrap based on the referenced WSLg guide',
@@ -215,7 +221,6 @@ sub _build_plan {
     }
     push @commands, \@install;
     push @commands, [ 'sudo', 'systemctl', 'mask', 'gdm.service' ];
-    push @commands, [ 'sudo', 'systemctl', 'enable', 'wslg-fix.service' ];
 
     return {
         commands         => \@commands,
@@ -268,7 +273,7 @@ export IM_CONFIG_PHASE=1
 export QT_ACCESSIBILITY=1
 export QT_IM_MODULE=ibus
 export XDG_CURRENT_DESKTOP=ubuntu:GNOME
-export XDG_DATA_DIRS=/usr/share/ubuntu:\$XDG_DATA_DIRS
+export XDG_DATA_DIRS=/usr/share/ubuntu:\${XDG_DATA_DIRS:-/usr/local/share:/usr/share:/var/lib/snapd/desktop}
 export XDG_SESSION_DESKTOP=ubuntu
 export XDG_SESSION_TYPE=wayland
 export XMODIFIERS=\@im=ibus
@@ -282,7 +287,7 @@ sub _desktop_command_argv {
     $size ||= '1366x768';
     my $xdg_data_dirs = defined $self->{env}->{XDG_DATA_DIRS} && $self->{env}->{XDG_DATA_DIRS} ne q{}
       ? '/usr/share/ubuntu:' . $self->{env}->{XDG_DATA_DIRS}
-      : '/usr/share/ubuntu';
+      : '/usr/share/ubuntu:/usr/local/share:/usr/share:/var/lib/snapd/desktop';
 
     return (
         'env',
