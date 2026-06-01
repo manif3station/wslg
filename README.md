@@ -36,13 +36,7 @@ This skill adds:
 
 ## Installation
 
-Install from the skill repository:
-
-```bash
-dashboard skills install git@github.mf:manif3station/wslg.git
-```
-
-Install by skill name:
+Install the skill into Developer Dashboard by repo name:
 
 ```bash
 dashboard skills install wslg
